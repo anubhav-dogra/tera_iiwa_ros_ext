@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 
 
 # Specify the filename here
-filename = "/home/terabotics/stuff_ws/src/tera_iiwa_ros_ext/scripts/manipulability_check.txt"
-filename1 = "/home/terabotics/stuff_ws/src/tera_iiwa_ros_ext/scripts/wrench_uncertainity_check.txt"
+filename = "/home/robothz/stuff_ws/src/tera_iiwa_ros_ext/scripts/manipulability_robot_test2.txt"
+# filename1 = "/home/terabotics/stuff_ws/src/tera_iiwa_ros_ext/scripts/wrench_uncertainity_check.txt"
 # Read the data from the text file
 with open(filename, "r") as f:
     data = [float(line.strip()) for line in f]
