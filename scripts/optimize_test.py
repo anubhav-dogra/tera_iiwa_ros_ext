@@ -198,7 +198,7 @@ class OptimizerNode:
         if self.desired_pose is None:
         # if isinstance(self.desired_pose, Pose):  # Check if it's a Pose object
             pose_now = self.desired_pose_  # Copy the reference
-            # print("Im HERE **********************")
+            print("Im taking FK **********************")
         else:
             pose_now = Pose()  # Create a new Pose object if necessary
             pose_now.position.x = self.desired_pose.pose.position.x 
