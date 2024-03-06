@@ -20,7 +20,7 @@ class OptimizeWrench():
         self.wrench_pub = rospy.Publisher('cartesian_wrench_test', WrenchStamped, queue_size=10)
         self.pub_controller_config = rospy.Publisher('/iiwa/CartesianImpedance_trajectory_controller/set_config', ControllerConfig, queue_size=10)
         self.joint_state_subscriber = rospy.Subscriber('/iiwa/joint_states', JointState, self.joint_state_callback,queue_size=10)
-        self.ee_state_subscriber = rospy.Subscriber('/tool_link_ee_pose', PoseStamped, self.ee_state_callback,queue_size=10)
+        # self.ee_state_subscriber = rospy.Subscriber('/tool_link_ee_pose', PoseStamped, self.ee_state_callback,queue_size=10)
         self.tau_commanded_sub = rospy.Subscriber('/iiwa/CartesianImpedance_trajectory_controller/commanded_torques', Float64MultiArray, self.tau_commanded_callback,queue_size=10)
         self.robot_description = rospy.get_param('/robot_description')
         # self.upper_joint_limits, self.lower_joint_limits = self.get_joint_limits(self.robot_description)
@@ -51,25 +51,25 @@ class OptimizeWrench():
         self.curr_effort_state = data.effort[0:7]
         # u=self.wrench_error_estimator(self.curr_joint_state)
         # print("wrench_error_estimator",u)
-        wrenches = self.get_wrench(self.curr_joint_state,self.curr_effort_state)
-        # print("wrenches",wrenches) # its in base frame!!
-        C_wrench = WrenchStamped()
-        C_wrench.header.frame_id = "world"
-        C_wrench.header.stamp = rospy.Time.now()
-        C_wrench.wrench.force.x = wrenches[3]
-        C_wrench.wrench.force.y = wrenches[4]
-        C_wrench.wrench.force.z = wrenches[5]
-        C_wrench.wrench.torque.x = wrenches[0]
-        C_wrench.wrench.torque.y = wrenches[1]
-        C_wrench.wrench.torque.z = wrenches[2]
-        self.wrench_pub.publish(C_wrench)
+        # wrenches = self.get_wrench(self.curr_joint_state,self.curr_effort_state)
+        # # print("wrenches",wrenches) # its in base frame!!
+        # C_wrench = WrenchStamped()
+        # C_wrench.header.frame_id = "world"
+        # C_wrench.header.stamp = rospy.Time.now()
+        # C_wrench.wrench.force.x = wrenches[3]
+        # C_wrench.wrench.force.y = wrenches[4]
+        # C_wrench.wrench.force.z = wrenches[5]
+        # C_wrench.wrench.torque.x = wrenches[0]
+        # C_wrench.wrench.torque.y = wrenches[1]
+        # C_wrench.wrench.torque.z = wrenches[2]
+        # self.wrench_pub.publish(C_wrench)
 
         # print(self.curr_effort_state)
         # Mass = self.get_mass_matrix(self.curr_joint_state)
-        # Gravity = self.get_gravity_compensation(self.curr_joint_state,self.curr_vel_state)
-        # g_msg = Float64MultiArray()
-        # g_msg.data = Gravity
-        # self.g_pub.publish(g_msg)
+        Gravity = self.get_gravity_compensation(self.curr_joint_state,self.curr_vel_state)
+        g_msg = Float64MultiArray()
+        g_msg.data = Gravity
+        self.g_pub.publish(g_msg)
         # print("Gravity", Gravity)
         # print("diff",np.subtract(self.curr_effort_state,Gravity))
 
@@ -102,7 +102,7 @@ class OptimizeWrench():
         while not good:
             try:
                 get_gravity = rospy.ServiceProxy(gravity_service,GetGravity)
-                g_resp = get_gravity(joint_angles=q, joint_velocities=qdot,joint_torques=[10,10,10,10,10,10,10],gravity=[0,0,-9.80665])
+                g_resp = get_gravity(joint_angles=q, joint_velocities=qdot,joint_torques=[0,0,0,0,0,0,0],gravity=[0,0,-9.80665])
                 g_out = g_resp.compensation_torques
                 
                 good = True

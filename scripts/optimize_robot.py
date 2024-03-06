@@ -35,7 +35,7 @@ class OptimizerNode:
 
         # Run optimization
         # self.run_optimization()
-        self.optimization_timer = rospy.Timer(rospy.Duration(0.5), self.run_optimization)
+        self.optimization_timer = rospy.Timer(rospy.Duration(0.1), self.run_optimization)
 
         self.reset_flag = False
         rospy.on_shutdown(self.reset_nullspace)
@@ -142,9 +142,9 @@ class OptimizerNode:
         msg.cartesian_stiffness.force.x = 1000
         msg.cartesian_stiffness.force.y = 1000
         msg.cartesian_stiffness.force.z = 800
-        msg.cartesian_stiffness.torque.x = 50
-        msg.cartesian_stiffness.torque.y = 50
-        msg.cartesian_stiffness.torque.z = 50
+        msg.cartesian_stiffness.torque.x = 30
+        msg.cartesian_stiffness.torque.y = 30
+        msg.cartesian_stiffness.torque.z = 30
 
         # Negative values mean that the default damping values apply --> 2* sqrt(stiffness)
         msg.cartesian_damping.force.x =  2*np.sqrt(msg.cartesian_stiffness.force.x)
@@ -248,9 +248,9 @@ class OptimizerNode:
 
     def objective_function(self, q):
         manipulability = self.cal_manipulability(q)
-        return -manipulability  # Maximization problem, so negate manipulability
-        # wrench_unc = self.wrench_error_estimator(q)
-        # return (0.5*wrench_unc -0.5*manipulability)
+        # return -manipulability  # Maximization problem, so negate manipulability
+        wrench_unc = self.wrench_error_estimator(q)
+        return (0.5*wrench_unc -0.5*manipulability)
 
     def run_optimization(self,event):
     # def run_optimization(self):
@@ -298,7 +298,7 @@ class OptimizerNode:
         controller_config = self.set_controller_config(np.zeros_like(self.curr_joint_state))
         self.pub_controller_config.publish(controller_config)
         self.output_file_manip.close()
-        # self.output_file_wrench_uc.close()
+        self.output_file_wrench_uc.close()
         
         
 

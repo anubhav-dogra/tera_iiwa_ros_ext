@@ -13,7 +13,7 @@ import xml.dom.minidom
 from pyquaternion import Quaternion
 
 class OptimizerNode:
-    def __init__(self,base_file_name):
+    def __init__(self):
         rospy.init_node('optimizer_node', anonymous=True)
         self.rate = rospy.Rate(4)
         # Define subscribers and publishers
@@ -35,13 +35,10 @@ class OptimizerNode:
 
         # Run optimization
         # self.run_optimization()
-        self.optimization_timer = rospy.Timer(rospy.Duration(0.5), self.run_optimization)
+        self.optimization_timer = rospy.Timer(rospy.Duration(1), self.run_optimization)
 
         self.reset_flag = False
         rospy.on_shutdown(self.reset_nullspace)
-        self.base_file_name = base_file_name
-        self.output_file_manip = open(f"manipulability_{self.base_file_name}.txt", 'a')
-        # self.output_file_wrench_uc = open(f"wrench_uncertainity_{self.base_file_name}.txt", 'a')
 
     def reference_pose_callback(self, reference_pose_msg):
         # Update desired_pose variable when a message is received on the reference_pose topic
@@ -72,11 +69,7 @@ class OptimizerNode:
         self.curr_joint_state = joint_state.position[0:7]
         self.curr_vel_state = joint_state.velocity[0:7]
         m = self.cal_manipulability(self.curr_joint_state)
-        # wu = self.wrench_error_estimator(self.curr_joint_state)
-        self.output_file_manip.write(str(m) + '\n')  # Write data to file
-        self.output_file_manip.flush()  # Flush buffer to ensure data is written immediately
-        # self.output_file_wrench_uc.write(str(wu) + '\n')  # Write data to file
-        # self.output_file_wrench_uc.flush()  # Flush buffer to ensure data is written immediately
+        wu = self.wrench_error_estimator(self.curr_joint_state)
         pass
 
     def call_jacobian(self,q):
@@ -142,9 +135,9 @@ class OptimizerNode:
         msg.cartesian_stiffness.force.x = 1000
         msg.cartesian_stiffness.force.y = 1000
         msg.cartesian_stiffness.force.z = 800
-        msg.cartesian_stiffness.torque.x = 50
-        msg.cartesian_stiffness.torque.y = 50
-        msg.cartesian_stiffness.torque.z = 50
+        msg.cartesian_stiffness.torque.x = 30
+        msg.cartesian_stiffness.torque.y = 30
+        msg.cartesian_stiffness.torque.z = 30
 
         # Negative values mean that the default damping values apply --> 2* sqrt(stiffness)
         msg.cartesian_damping.force.x =  2*np.sqrt(msg.cartesian_stiffness.force.x)
@@ -173,7 +166,6 @@ class OptimizerNode:
 
     def wrench_error_estimator(self,q):
         cov_mat = np.linalg.inv(np.identity(7))
-        # d = np.array([0, 0, 0, 0, 0, 1])
         d = np.zeros(6)
         d[:3] = np.zeros(3)
         d[3:] = self.Tf[:3, 2]
@@ -194,11 +186,8 @@ class OptimizerNode:
  
     def cons_eq(self, q):
        
-        # pose_now = self.call_FK(self.curr_joint_state)
         if self.desired_pose is None:
-        # if isinstance(self.desired_pose, Pose):  # Check if it's a Pose object
             pose_now = self.desired_pose_  # Copy the reference
-            # print("Im HERE **********************")
         else:
             pose_now = Pose()  # Create a new Pose object if necessary
             pose_now.position.x = self.desired_pose.pose.position.x 
@@ -210,12 +199,6 @@ class OptimizerNode:
             pose_now.orientation.w = self.desired_pose.pose.orientation.w
 
         pose_opti = self.call_FK(q)
-
-         # pos_error = [pose_now.position.x-pose_opti.position.x,
-        #                 pose_now.position.y-pose_opti.position.y,
-        #                 pose_now.position.z-pose_opti.position.z]
-        
-
         o_now = np.array([pose_now.orientation.w,pose_now.orientation.x,pose_now.orientation.y,pose_now.orientation.z])
         o_opti_ = np.array([pose_opti.orientation.w,pose_opti.orientation.x,pose_opti.orientation.y,pose_opti.orientation.z])
         if np.dot(o_now,o_opti_) < 0:
@@ -237,7 +220,7 @@ class OptimizerNode:
                         ax_ang[0],
                         ax_ang[1],
                         ax_ang[2]]
-        # print("pose_error in constraints",pose_error)
+        print("pose_error in constraints",pose_error)
         rot_now = o_now_q.rotation_matrix
 
         # calculate Tf to transform things to eef
@@ -248,9 +231,9 @@ class OptimizerNode:
 
     def objective_function(self, q):
         manipulability = self.cal_manipulability(q)
-        return -manipulability  # Maximization problem, so negate manipulability
-        # wrench_unc = self.wrench_error_estimator(q)
-        # return (0.5*wrench_unc -0.5*manipulability)
+        # return -manipulability  # Maximization problem, so negate manipulability
+        wrench_unc = self.wrench_error_estimator(q)
+        return (0.5*wrench_unc -0.5*manipulability)
 
     def run_optimization(self,event):
     # def run_optimization(self):
@@ -291,25 +274,17 @@ class OptimizerNode:
 
     def run(self):
         rospy.spin()
-        # self.rate.sleep()
 
     def reset_nullspace(self):
         self.reset_flag = True
         controller_config = self.set_controller_config(np.zeros_like(self.curr_joint_state))
-        self.pub_controller_config.publish(controller_config)
-        self.output_file_manip.close()
-        # self.output_file_wrench_uc.close()
-        
+        self.pub_controller_config.publish(controller_config)      
         
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print("Usage: python script.py <base_file_name>")
-        sys.exit(1)
 
-    base_file_name = sys.argv[1]
     try:
-        optimizer_node = OptimizerNode(base_file_name)
+        optimizer_node = OptimizerNode()
         rospy.spin()
         # optimizer_node.run()
     except rospy.ROSInterruptException:
