@@ -7,7 +7,7 @@ from geometry_msgs.msg import Pose, PoseStamped, WrenchStamped
 from cartesian_impedance_controller.msg import ControllerConfig
 import numpy as np
 from iiwa_tools.srv import GetJacobian, GetFK
-from scipy.optimize import minimize, Bounds
+from scipy.optimize import minimize, Bounds, shgo, NonlinearConstraint
 from urdf_parser_py.urdf import URDF
 import xml.dom.minidom
 from pyquaternion import Quaternion
@@ -188,6 +188,7 @@ class OptimizerNode:
        
         if self.desired_pose is None:
             pose_now = self.desired_pose_  # Copy the reference
+            print("Im taking FK **********************")
         else:
             pose_now = Pose()  # Create a new Pose object if necessary
             pose_now.position.x = self.desired_pose.pose.position.x 
@@ -212,15 +213,26 @@ class OptimizerNode:
         ax = q_error.axis
         ang = q_error.angle
         ax_ang = ax*ang
-        # o_error = [ax_ang[0], ax_ang[1], ax_ang[2]]
-
+        o_error = [ax_ang[0], ax_ang[1], ax_ang[2]]
         pose_error = [pose_now.position.x-pose_opti.position.x,
                         pose_now.position.y-pose_opti.position.y,
                         pose_now.position.z-pose_opti.position.z,
                         ax_ang[0],
                         ax_ang[1],
                         ax_ang[2]]
-        print("pose_error in constraints",pose_error)
+        # pose_error = [pose_now.position.x-pose_opti.position.x,
+        #                 pose_now.position.y-pose_opti.position.y,
+        #                 pose_now.position.z-pose_opti.position.z,
+        #                 ax_ang[0],
+        #                 ax_ang[1],
+        #                 ax_ang[2],
+        #                 pose_opti.position.x-pose_now.position.x,
+        #                 pose_opti.position.y-pose_now.position.y,
+        #                 pose_opti.position.z-pose_now.position.z,
+        #                 -ax_ang[0],
+        #                 -ax_ang[1],
+        #                 -ax_ang[2]]
+        # print("pose_error in constraints",pose_error)
         rot_now = o_now_q.rotation_matrix
 
         # calculate Tf to transform things to eef
@@ -231,9 +243,9 @@ class OptimizerNode:
 
     def objective_function(self, q):
         manipulability = self.cal_manipulability(q)
-        # return -manipulability  # Maximization problem, so negate manipulability
-        wrench_unc = self.wrench_error_estimator(q)
-        return (0.5*wrench_unc -0.5*manipulability)
+        return -manipulability  # Maximization problem, so negate manipulability
+        # wrench_unc = self.wrench_error_estimator(q)
+        # return (0.5*wrench_unc -0.5*manipulability)
 
     def run_optimization(self,event):
     # def run_optimization(self):
@@ -253,9 +265,16 @@ class OptimizerNode:
         
         # Define optimization options
         optimization_options = {'disp': True}  # Display optimization progress
+
         
+        # nl_constraints = NonlinearConstraint(self.cons_eq, -0.000009, 0.000009)
+        # con = lambda q: self.cons_eq(q)
+        # nl_constraints = NonlinearConstraint(con,-0.000009, 0.000009)
         # Run optimization
-        result = minimize(self.objective_function, initial_guess, method="SLSQP",bounds=bounds, constraints=constraints_, options=optimization_options)
+        # 'trust-constr' is getting out of local optimiza (for 1 example test) but its slow !!!!
+        # 'SLSQP' this is fast ! but can stuck in local minima 
+        result = minimize(self.objective_function,initial_guess,bounds=bounds, method='SLSQP', constraints=constraints_, options=optimization_options)
+        # result = shgo(self.objective_function,bounds=bounds, constraints=constraints_, minimizer_kwargs='SLSQP', options=optimization_options)
         
         # Extract optimal joint configuration
         optimal_joint_configuration = result.x
