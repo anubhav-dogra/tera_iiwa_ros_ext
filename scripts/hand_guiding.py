@@ -127,6 +127,7 @@ if __name__=='__main__':
     new_pose.pose.orientation.z = pose_out.orientation.z
     new_pose.pose.orientation.w = pose_out.orientation.w
     print(new_pose)
+    input("Press Enter to fix it")
     pose_pub.publish(new_pose)
 
     controller_config1 = set_controller_config_hard()

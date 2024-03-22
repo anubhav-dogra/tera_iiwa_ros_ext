@@ -35,7 +35,7 @@ class OptimizerNode:
 
         # Run optimization
         # self.run_optimization()
-        self.optimization_timer = rospy.Timer(rospy.Duration(1), self.run_optimization)
+        self.optimization_timer = rospy.Timer(rospy.Duration(0.25), self.run_optimization)
 
         self.reset_flag = False
         rospy.on_shutdown(self.reset_nullspace)
@@ -140,12 +140,12 @@ class OptimizerNode:
         msg.cartesian_stiffness.torque.z = 30
 
         # Negative values mean that the default damping values apply --> 2* sqrt(stiffness)
-        msg.cartesian_damping.force.x =  2*np.sqrt(msg.cartesian_stiffness.force.x)
-        msg.cartesian_damping.force.y =  2*np.sqrt(msg.cartesian_stiffness.force.y)
-        msg.cartesian_damping.force.z =  2*np.sqrt(msg.cartesian_stiffness.force.z)
-        msg.cartesian_damping.torque.x = 2*np.sqrt(msg.cartesian_stiffness.torque.x)
-        msg.cartesian_damping.torque.y = 2*np.sqrt(msg.cartesian_stiffness.torque.y)
-        msg.cartesian_damping.torque.z = 2*np.sqrt(msg.cartesian_stiffness.torque.z)
+        msg.cartesian_damping_factors.force.x =  2*np.sqrt(msg.cartesian_stiffness.force.x)
+        msg.cartesian_damping_factors.force.y =  2*np.sqrt(msg.cartesian_stiffness.force.y)
+        msg.cartesian_damping_factors.force.z =  2*np.sqrt(msg.cartesian_stiffness.force.z)
+        msg.cartesian_damping_factors.torque.x = 2*np.sqrt(msg.cartesian_stiffness.torque.x)
+        msg.cartesian_damping_factors.torque.y = 2*np.sqrt(msg.cartesian_stiffness.torque.y)
+        msg.cartesian_damping_factors.torque.z = 2*np.sqrt(msg.cartesian_stiffness.torque.z)
 
             
         if self.reset_flag is False:
@@ -160,7 +160,7 @@ class OptimizerNode:
         else:
             msg.q_d_nullspace=[]
             msg.nullspace_stiffness = 0
-        msg.nullspace_damping = 2*(np.sqrt(msg.nullspace_stiffness))
+        msg.nullspace_damping_factor = 2*(np.sqrt(msg.nullspace_stiffness))
         return msg
     
 
