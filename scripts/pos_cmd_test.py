@@ -12,6 +12,7 @@ def callback(data):
 
 rospy.init_node('test_node')
 pub=rospy.Publisher("/iiwa/PositionController/command", Float64MultiArray, queue_size=10)
+pub_check=rospy.Publisher("/iiwa/PositionController/command_check", Float64MultiArray, queue_size=10)
 rospy.Subscriber("/iiwa/joint_states",JointState,callback)
 
 lower_limits = -np.array([170, 120, 170, 120, 170, 120 ,175])
@@ -26,14 +27,15 @@ if not joints:
 msg.data = [joints[0], joints[1], joints[2], joints[3], joints[4], joints[5],joints[6]]    
 # msg.data = [-0.77, -1.2048, -1.694, -1.7794, -1.1734, 1.416, -1.57]
 
-rate = rospy.Rate(20)
+rate = rospy.Rate(100)
 while not rospy.is_shutdown():
     
     time = rospy.get_time()
     angle = math.sin(time)
     angle = max(lower_limits[6],min(angle,upper_limits[6]))
-    msg.data[6] = msg.data[6]+0.01*angle
-    pub.publish(msg)
+    msg.data[6] = msg.data[6]+0.001*angle
+    # pub.publish(msg)
+    pub_check.publish(msg)
     print(msg)
 
     rate.sleep()
