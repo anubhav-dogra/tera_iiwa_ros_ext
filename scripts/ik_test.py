@@ -117,7 +117,7 @@ while not rospy.is_shutdown():
     joint_target = np.array(jt) + np.array(diff)#np.multiply(np.array(diff), dt)
 
     cmd_msg.data = [joint_target[0], joint_target[1], joint_target[2], joint_target[3], joint_target[4], joint_target[5], joint_target[6]]
-    pub.publish(cmd_msg)
+    # pub.publish(cmd_msg)
     rospy.sleep(0.005)
 
 rospy.spin()
