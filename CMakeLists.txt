@@ -156,10 +156,10 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-#  add_executable(get_plot_data src/get_plot_data.cpp)
+ add_executable(tau_ext_converter src/tau_ext_converter.cpp)
  
  
-# add_dependencies(get_plot_data ${catkin_EXPORTED_TARGETS})
+add_dependencies(tau_ext_converter ${catkin_EXPORTED_TARGETS})
  
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -172,7 +172,7 @@ include_directories(
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-#  target_link_libraries(get_plot_data ${catkin_LIBRARIES})
+ target_link_libraries(tau_ext_converter ${catkin_LIBRARIES})
 
 #  target_link_libraries(iiwa14_rs_tool_manipulator_ikfast_plugin ${catkin_LIBRARIES})
 
