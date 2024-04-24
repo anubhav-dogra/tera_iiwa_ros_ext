@@ -1,0 +1,39 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/terabotics/stuff_ws/devel/include/**",
+        "/home/terabotics/terabotics_iiwa_ws/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/terabotics/terabotics_iiwa_ws/src/aruco_ros/aruco/include/**",
+        "/home/terabotics/terabotics_iiwa_ws/src/aruco_ros/aruco_ros/include/**",
+        "/home/terabotics/terabotics_iiwa_ws/src/boost_plugin_loader/include/**",
+        "/home/terabotics/stuff_ws/src/Cartesian-Impedance-Controller/include/**",
+        "/home/terabotics/stuff_ws/src/cartesian_trajectory_generator/include/**",
+        "/home/terabotics/stuff_ws/src/iiwa14_rs_tool_manipulator_ikfast_plugin/include/**",
+        "/home/terabotics/stuff_ws/src/iiwa_ros/iiwa_control/include/**",
+        "/home/terabotics/stuff_ws/src/iiwa_ros/iiwa_driver/include/**",
+        "/home/terabotics/stuff_ws/src/iiwa_ros/iiwa_gazebo/include/**",
+        "/home/terabotics/terabotics_iiwa_ws/src/terabotics_iiwa_stack/iiwa_hw/include/**",
+        "/home/terabotics/terabotics_iiwa_ws/src/terabotics_iiwa_stack/iiwa_ros/include/**",
+        "/home/terabotics/stuff_ws/src/iiwa_ros/iiwa_tools/include/**",
+        "/home/terabotics/terabotics_iiwa_ws/src/reach/include/**",
+        "/home/terabotics/terabotics_iiwa_ws/src/reach_ros/include/**",
+        "/home/terabotics/stuff_ws/src/realsense_gazebo_plugin/include/**",
+        "/home/terabotics/stuff_ws/src/tera_iiwa_ros/include/**",
+        "/home/terabotics/stuff_ws/src/tera_iiwa_ros_ext/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

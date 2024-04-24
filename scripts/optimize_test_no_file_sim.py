@@ -132,20 +132,20 @@ class OptimizerNode:
     def set_controller_config(self,joint_values):
         msg = ControllerConfig()
 
-        msg.cartesian_stiffness.force.x = 1000
-        msg.cartesian_stiffness.force.y = 1000
-        msg.cartesian_stiffness.force.z = 800
-        msg.cartesian_stiffness.torque.x = 30
-        msg.cartesian_stiffness.torque.y = 30
-        msg.cartesian_stiffness.torque.z = 30
+        msg.cartesian_stiffness.force.x = 800
+        msg.cartesian_stiffness.force.y = 800
+        msg.cartesian_stiffness.force.z = 400
+        msg.cartesian_stiffness.torque.x = 90
+        msg.cartesian_stiffness.torque.y = 90
+        msg.cartesian_stiffness.torque.z = 90
 
         # Negative values mean that the default damping values apply --> 2* sqrt(stiffness)
-        msg.cartesian_damping_factors.force.x =  2*np.sqrt(msg.cartesian_stiffness.force.x)
-        msg.cartesian_damping_factors.force.y =  2*np.sqrt(msg.cartesian_stiffness.force.y)
-        msg.cartesian_damping_factors.force.z =  2*np.sqrt(msg.cartesian_stiffness.force.z)
-        msg.cartesian_damping_factors.torque.x = 2*np.sqrt(msg.cartesian_stiffness.torque.x)
-        msg.cartesian_damping_factors.torque.y = 2*np.sqrt(msg.cartesian_stiffness.torque.y)
-        msg.cartesian_damping_factors.torque.z = 2*np.sqrt(msg.cartesian_stiffness.torque.z)
+        msg.cartesian_damping.force.x =  2*np.sqrt(msg.cartesian_stiffness.force.x)
+        msg.cartesian_damping.force.y =  2*np.sqrt(msg.cartesian_stiffness.force.y)
+        msg.cartesian_damping.force.z =  2*np.sqrt(msg.cartesian_stiffness.force.z)
+        msg.cartesian_damping.torque.x = 2*np.sqrt(msg.cartesian_stiffness.torque.x)
+        msg.cartesian_damping.torque.y = 2*np.sqrt(msg.cartesian_stiffness.torque.y)
+        msg.cartesian_damping.torque.z = 2*np.sqrt(msg.cartesian_stiffness.torque.z)
 
             
         if self.reset_flag is False:
@@ -160,7 +160,7 @@ class OptimizerNode:
         else:
             msg.q_d_nullspace=[]
             msg.nullspace_stiffness = 0
-        msg.nullspace_damping_factor = 2*(np.sqrt(msg.nullspace_stiffness))
+        msg.nullspace_damping = 2*(np.sqrt(msg.nullspace_stiffness))
         return msg
     
 

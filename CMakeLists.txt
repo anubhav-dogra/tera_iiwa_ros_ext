@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.11)
 project(tera_iiwa_ros_ext)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
@@ -7,6 +7,15 @@ project(tera_iiwa_ros_ext)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+find_package(Boost 1.49 REQUIRED)
+find_package(PkgConfig)
+
+# Find RBDyn library and dependencies
+pkg_search_module(Eigen3 REQUIRED eigen3)
+pkg_check_modules(mc_rbdyn_urdf REQUIRED mc_rbdyn_urdf)
+pkg_check_modules(RBDyn REQUIRED RBDyn)
+pkg_check_modules(SpaceVecAlg REQUIRED SpaceVecAlg)
+pkg_check_modules(tinyxml2 REQUIRED tinyxml2)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
@@ -26,7 +35,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 ## System dependencies are found with CMake's conventions
 #find_package(Boost REQUIRED COMPONENTS system)
-find_package(Eigen3 REQUIRED)
+# find_package(Eigen3 REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -127,22 +136,28 @@ catkin_package(
      pluginlib
      tf2_geometry_msgs
   DEPENDS
-    EIGEN3
-#  DEPENDS system_lib
+    EIGEN3 mc_rbdyn_urdf RBDyn SpaceVecAlg tinyxml2 Boost
 )
 
 ###########
 ## Build ##
 ###########
+# Sets build type to "Release" in case no build type has not been set before. This is necessary to run this controller at 1 kHz.
+if(NOT CMAKE_BUILD_TYPE) 
+    set(CMAKE_BUILD_TYPE Release)
+endif(NOT CMAKE_BUILD_TYPE)
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-  #include
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
+  ${RBDyn_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
+  ${tinyxml2_INCLUDE_DIRS}
+  ${SpaceVecAlg_INCLUDE_DIRS}
+  ${mc_rbdyn_urdf_INCLUDE_DIRS}
 )
-
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/tera_iiwa_ros.cpp
@@ -156,11 +171,12 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
- add_executable(tau_ext_converter src/tau_ext_converter.cpp)
- 
- 
-add_dependencies(tau_ext_converter ${catkin_EXPORTED_TARGETS})
- 
+add_executable(tau_ext_converter src/tau_ext_converter.cpp)
+add_executable(force_estimator src/force_estimator.cpp)
+
+target_link_libraries(tau_ext_converter ${catkin_LIBRARIES})
+target_link_libraries(force_estimator ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${tinyxml2_LIBRARIES} RBDyn mc_rbdyn_urdf ${Eigen3_LIBRARIES})
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -172,7 +188,6 @@ add_dependencies(tau_ext_converter ${catkin_EXPORTED_TARGETS})
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(tau_ext_converter ${catkin_LIBRARIES})
 
 #  target_link_libraries(iiwa14_rs_tool_manipulator_ikfast_plugin ${catkin_LIBRARIES})
 

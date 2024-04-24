@@ -23,3 +23,11 @@ Tried to check tau_cmd - tau_ext
 --- Nothing found coz both are equal and opposite in every condition. 
 
 Just check how much torque is off ! 
+
+### Done and Working:
+    force_estimator node working, : 
+        Computes Wrenches wrt base ! using RBDyn library (for jacobian) and using commanded torques (simulation)
+
+### Changes:
+    optimize_test_no_file_sim/real :   there is a change in `cartesian_damping_factors` and `cartesian_damping` between real and sim. 
+    similarly: for nullspace
