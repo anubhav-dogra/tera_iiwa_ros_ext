@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="action_server" default="PositionJointInterface_trajectory_controller/follow_joint_trajectory"/>
+    <arg name="planning_group" default="manipulator"/>
+    <arg name="alpha" default="0.1"/>
+    <arg name="offline" default="true"/>
+
+    <group ns="iiwa">
+        <node name="moveit_joint_position" pkg="tera_iiwa_ros_ext" type="moveit_joint_position.py" output="screen"/>
+        <param name="action_server" type="str" value="$(arg action_server)"/>
+        <param name="planning_group" type="str" value="$(arg planning_group)"/>
+        <param name="alpha" type="double" value="$(arg alpha)"/>
+        <param name="offline" type="bool" value="$(arg offline)"/>
+    </group>
+</launch>

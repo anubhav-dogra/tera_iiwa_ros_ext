@@ -148,7 +148,7 @@ private:
     std::vector<size_t> rbd_indices_;
     size_t _ef_index;
     std::string robot_description = "/robot_description";
-    std::string end_effector = "tool_link_ee";
+    std::string end_effector = "iiwa_link_ee";
     Eigen::MatrixXd J_T_inv;
 
 

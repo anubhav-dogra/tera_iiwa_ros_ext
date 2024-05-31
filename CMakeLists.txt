@@ -200,10 +200,14 @@ target_link_libraries(force_estimator ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${t
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-# catkin_install_python(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+catkin_install_python(PROGRAMS
+  scripts/moveit_joint_position.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+catkin_install_python(PROGRAMS
+  scripts/cubic_p2p.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 # catkin_install_python(PROGRAMS
 #    src/get_plot_data.py 
 #    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
